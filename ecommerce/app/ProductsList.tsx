@@ -9,8 +9,22 @@ export default function ProductsList({ products, initialCartProducts = [] }: { p
   const [cartProducts, setCartProducts] = useState(initialCartProducts)
   
   async function addToCart(productId: string) {
-    const response = await fetch('https://didactic-spork-qv5rg559vw73xgq9-3000.app.github.dev/api/users/2/cart', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/users/2/cart`, {
       method: 'POST',
+      body: JSON.stringify({
+        productId,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    const updatedCartProducts = await response.json();
+    setCartProducts(updatedCartProducts);
+  }
+
+  async function removeFromCart(productId: string) {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/users/2/cart`, {
+      method: 'DELETE',
       body: JSON.stringify({
         productId,
       }),
@@ -47,10 +61,11 @@ export default function ProductsList({ products, initialCartProducts = [] }: { p
           {productIsInCart(product.id)
             ? (
               <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full"
               onClick={(e) => {
                 e.preventDefault();
                 console.log('Removing from cart... (Not implemented)');
+                removeFromCart(product.id)
               }}>Remove from Cart</button>
             ) : (
               <button
